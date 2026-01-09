@@ -1,19 +1,75 @@
-# Blaize Carnival — Next.js App (Converted)
 
-Converted the provided single-file React app into a modern Next.js (app-router) structure.
-Each React component has its own `.module.css`.
+A simple **cashless coin system** built for an office carnival / event.
 
-To run locally:
+Employees get virtual coins, shops accept payments via QR / shop ID, and all transactions are tracked in **Google Sheets** using a **Google Apps Script backend**.  
+Frontend is built with **Next.js (React)**.
 
-1. Install dependencies
-   ```bash
-   npm install
-   ```
-2. Run development server
-   ```bash
-   npm run dev
-   ```
+> ⚠️ This project is intentionally lightweight and hacky — built fast for an event, not production.
 
-Notes:
-- API URL is kept as provided. Update `lib/api.js` if you want a different endpoint.
-- All UI components are client components (`'use client'`) and have separate CSS modules.
+---
+
+## Tech Stack
+
+### Frontend
+- **Next.js (React)**
+- CSS Modules (no Tailwind)
+- Fetch-based API calls
+- Client-side session handling
+
+### Backend
+- **Google Apps Script (.gs)**
+- Google Sheets as database
+- Deployed as a **Web App**
+- No external servers required
+
+---
+
+## Data Model (Google Sheets)
+
+### Employees Sheet
+| Column | Description |
+|------|------------|
+| employee_id | Unique employee ID |
+| employee_name | Full name |
+| hashed_pin | SHA-256 hashed PIN |
+| coins | Available coins |
+| session_id | Active session token |
+
+### Shops Sheet
+| Column | Description |
+|------|------------|
+| shop_id | Auto-generated (SHOP001, SHOP002…) |
+| shop_name | Display name |
+| owner_employee_id | Owner |
+| hashed_password | Shop login password |
+| coins | Coins earned |
+| session_id | Active session token |
+
+### Transactions Sheet
+| Column | Description |
+|------|------------|
+| transaction_id | Auto increment |
+| timestamp | `HH:MM:SS DD_MM-YYYY` |
+| employee_id | Who paid |
+| shop_id | Where |
+| shop_name | Cached for history |
+| amount | Coins spent |
+
+---
+
+## Authentication Model
+
+- No Google login
+- No JWT
+- No OAuth
+- No cookies
+
+Instead:
+- User logs in with **ID + PIN**
+- Backend generates a **session_id**
+- Every request validates `(id + session_id)`
+- PIN is required again for **payments**
+
+This is **not enterprise security**, but sufficient for a closed carnival setup.
+
+---
